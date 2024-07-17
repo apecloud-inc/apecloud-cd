@@ -620,7 +620,6 @@ generate_image_yaml() {
         image_name=${image##*/}
         tee -a $image_sync_yaml << EOF
 ${REGISTRY}/${image}:
-  - "infracreate-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/${image_name}"
   - "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/${image_name}"
 EOF
     done
@@ -639,7 +638,6 @@ generate_image_yaml_new() {
         tee -a $image_sync_yaml << EOF
 ${REGISTRY}/${image}:
   - "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/${image_name}"
-  - "infracreate-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/${image_name}"
 EOF
     done
 }
