@@ -630,7 +630,7 @@ generate_image_yaml_new() {
         echo "images name is empty"
         return
     fi
-    image_sync_yaml="./image_sync_yaml_new.yml"
+    image_sync_yaml="./image-sync-auth-apecloud.yml"
     rm -f $image_sync_yaml
     touch $image_sync_yaml
     for image in `echo "$IMAGES" | sed 's/|/ /g'`; do
