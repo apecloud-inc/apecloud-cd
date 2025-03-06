@@ -21,12 +21,12 @@ jobs:
         run: |
           PR_NUMBER="${{ github.event.issue.number }}"
           COMMENT_BODYS="${{ github.event.comment.body }}" 
-          LABEL_NAME=""
+          ADD_LABEL_NAME=""
           REMOVE_LABEL_NAME=""
           
           case "${COMMENT_BODYS}" in
               /pick)
-                  LABEL_NAME="pick"
+                  ADD_LABEL_NAME="pick"
                   PR_LABELS=$(gh pr view ${PR_NUMBER} --repo ${{ github.repository }} --json labels | jq -r '.labels[].name')
                   for pr_lable in $(echo "${PR_LABELS}"); do
                       if [[ "${pr_lable}" == "nopick" || "${pr_lable}" == "pick-"* ]]; then
@@ -39,7 +39,7 @@ jobs:
                   done
               ;;
               /nopick)
-                  LABEL_NAME="nopick"
+                  ADD_LABEL_NAME="nopick"
                   PR_LABELS=$(gh pr view ${PR_NUMBER} --repo ${{ github.repository }} --json labels | jq -r '.labels[].name')
                   for pr_lable in $(echo "${PR_LABELS}"); do
                       if [[ "${pr_lable}" == "pick" || "${pr_lable}" == "pick-"* ]]; then
@@ -53,6 +53,7 @@ jobs:
               ;;
               /pick*)
                   for comment_body in $(echo "${COMMENT_BODYS}" | sed 's/,/ /g' | sed 's/\|/ /g' | sed 's/\// /g') ; do
+                      echo "comment_body:$comment_body"
                       if [[ "${comment_body}" == "pick" ]]; then
                           continue
                       fi
@@ -64,10 +65,10 @@ jobs:
                       fi 
           
                       if [[ -n "${label_name_tmp}" ]]; then
-                          if [[ -z "${LABEL_NAME}" ]]; then
-                            LABEL_NAME=${label_name_tmp}
+                          if [[ -z "${ADD_LABEL_NAME}" ]]; then
+                            ADD_LABEL_NAME=${label_name_tmp}
                           else
-                            LABEL_NAME="${LABEL_NAME},${label_name_tmp}"
+                            ADD_LABEL_NAME="${ADD_LABEL_NAME},${label_name_tmp}"
                           fi
                       fi
                   done
@@ -118,11 +119,11 @@ jobs:
               done
           
           fi
-          echo "ADD LABEL_NAME:${LABEL_NAME}"
+          echo "ADD_LABEL_NAME:${ADD_LABEL_NAME}"
           bash ${{ github.workspace }}/apecloud-cd/.github/utils/utils.sh \
               --type 33 \
               --github-repo "${{ github.repository }}" \
               --github-token "${{ env.GH_TOKEN }}" \
               --pr-number "${PR_NUMBER}" \
-              --label-name "${LABEL_NAME}" \
+              --label-name "${ADD_LABEL_NAME}" \
               --label-ops "ADD"
