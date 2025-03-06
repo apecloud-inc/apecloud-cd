@@ -42,6 +42,7 @@ Usage: $(basename "$0") <options>
                                 29) delete tag
                                 30) delete actions cache
                                 31) check release version
+                                33) set label
     -tn, --tag-name           Release tag name
     -gr, --github-repo        Github Repo
     -gt, --github-token       Github token
@@ -64,6 +65,8 @@ Usage: $(basename "$0") <options>
     -il, --images-list        Docker images list
     -ea, --extra-args         The extra args for workflow
     -r, --registry            Docker image registry (default: $REGISTRY_DEFAULT)
+    -lb, --label-name         The pr label name
+    -lo, --label-ops          The pr label ops (add/remove)
 EOF
 }
 
@@ -685,6 +688,15 @@ check_release_version(){
     done
 }
 
+set_label() {
+    label_ops_tmp=$(echo "$LABEL_OPS" | tr '[:upper:]' '[:lower:]')
+    if [[ "${label_ops_tmp}" == "add"  ]]; then
+        gh pr edit $PR_NUMBER --repo $GITHUB_REPO --add-label "$LABEL_NAME"
+    elif [[ "${label_ops_tmp}" == "remove"  ]]; then
+        gh pr edit $PR_NUMBER --repo $GITHUB_REPO --remove-label "$LABEL_NAME"
+    fi
+}
+
 parse_command_line() {
     while :; do
         case "${1:-}" in
@@ -822,6 +834,14 @@ parse_command_line() {
                 REGISTRY="$2"
                 shift
             ;;
+            -lb|--label-name)
+                LABEL_NAME="$2"
+                shift
+            ;;
+            -lo|--label-ops)
+                LABEL_OPS="$2"
+                shift
+            ;;
             *)
                 break
             ;;
@@ -859,6 +879,8 @@ main() {
     local IMAGES_LIST=""
     local EXTRA_ARGS=""
     local REGISTRY=$REGISTRY_DEFAULT
+    local LABEL_NAME=""
+    local LABEL_OPS=""
 
     parse_command_line "$@"
 
@@ -969,6 +991,9 @@ main() {
         ;;
         32)
             generate_image_yaml_new
+        ;;
+        33)
+            set_label
         ;;
     esac
 }
