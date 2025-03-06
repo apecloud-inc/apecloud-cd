@@ -97,7 +97,26 @@ jobs:
                   --pr-number "${PR_NUMBER}" \
                   --label-name "${REMOVE_LABEL_NAME}" \
                   --label-ops "REMOVE"
-              sleep 5
+          
+              check_remove_label=0
+              for i in $(seq 1 60); do
+                  sleep 1
+                  PR_LABELS=$(gh pr view ${PR_NUMBER} --repo ${{ github.repository }} --json labels | jq -r '.labels[].name')
+                  for pr_lable in $(echo "${PR_LABELS}"); do
+                      for remove_label in $(echo "${REMOVE_LABEL_NAME} | sed 's/,/ /g'"); do
+                          if [[ "${remove_label}" == "${pr_lable}" ]]; then
+                              check_remove_label=1
+                              break
+                          fi
+                      done
+                  done
+                  echo "checking remove label: ${PR_LABELS}"
+                  if [[ ${check_remove_label} -eq 1 ]]; then
+                      echo "remove label ${PR_LABELS} successfully"
+                      break
+                  fi
+              done
+          
           fi
           
           bash ${{ github.workspace }}/apecloud-cd/.github/utils/utils.sh \
