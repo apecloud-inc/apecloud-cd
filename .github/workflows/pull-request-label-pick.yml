@@ -53,7 +53,19 @@ jobs:
                   done
               ;;
               /pick*)
-                  for comment_body in $(echo "${COMMENT_BODYS}" | sed 's/,/ /g' | sed 's/\|/ /g' | sed 's/\// /g') ; do
+                  case "${COMMENT_BODYS}" in
+                      *,*)
+                          COMMENT_BODYS=$(echo "${COMMENT_BODYS}" | sed 's/,/ /g')
+                      ;;
+                      *|*)
+                          COMMENT_BODYS=$(echo "${COMMENT_BODYS}" | sed 's/|/ /g')
+                      ;;
+                      */*)
+                          COMMENT_BODYS=$(echo "${COMMENT_BODYS}" | sed 's/\// /g')
+                      ;;
+                  esac
+          
+                  for comment_body in $(echo "${COMMENT_BODYS}") ; do
                       echo "comment_body:$comment_body"
                       if [[ "${comment_body}" == "pick" ]]; then
                           continue
