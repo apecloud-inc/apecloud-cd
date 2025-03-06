@@ -88,7 +88,7 @@ jobs:
                   exit 1
               ;;
           esac
-          
+          echo "REMOVE_LABEL_NAME:${REMOVE_LABEL_NAME}"
           if [[ -n "${REMOVE_LABEL_NAME}" ]]; then
               bash ${{ github.workspace }}/apecloud-cd/.github/utils/utils.sh \
                   --type 33 \
@@ -118,7 +118,7 @@ jobs:
               done
           
           fi
-          
+          echo "ADD LABEL_NAME:${LABEL_NAME}"
           bash ${{ github.workspace }}/apecloud-cd/.github/utils/utils.sh \
               --type 33 \
               --github-repo "${{ github.repository }}" \
