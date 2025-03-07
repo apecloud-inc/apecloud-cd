@@ -75,6 +75,7 @@ jobs:
   cherry-pick-comment:
     needs: [ cherry-pick-branch ]
     uses: ./.github/workflows/comment-issue.yml
+    if : ${{ needs.cherry-pick-branch.outputs.matrix != '' }}
     strategy:
       matrix: ${{ fromJSON(needs.cherry-pick-branch.outputs.matrix) }}
     with:
