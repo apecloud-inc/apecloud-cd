@@ -73,8 +73,7 @@ jobs:
           echo "matrix={\"include\":[$CHERRY_PICK_BRANCH]}" >> $GITHUB_OUTPUT
 
   cherry-pick-comment:
-    needs: update-release-kbcli
-    need: [ cherry-pick-branch ]
+    needs: [ cherry-pick-branch ]
     uses: ./.github/workflows/comment-issue.yml
     strategy:
       matrix: ${{ fromJSON(needs.cherry-pick-branch.outputs.matrix) }}
