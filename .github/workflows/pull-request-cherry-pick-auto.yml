@@ -75,7 +75,7 @@ jobs:
   cherry-pick-comment:
     needs: update-release-kbcli
     need: [ cherry-pick-branch ]
-    uses: .github/workflows/comment-issue.yml
+    uses: ./.github/workflows/comment-issue.yml
     strategy:
       matrix: ${{ fromJSON(needs.cherry-pick-branch.outputs.matrix) }}
     with:
