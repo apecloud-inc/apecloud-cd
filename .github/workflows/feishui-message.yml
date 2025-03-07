@@ -24,12 +24,7 @@ on:
         required: false
         default: 'main'
       BOT_TYPE:
-        description: 'The bot type (e.g. release/package)'
-        type: string
-        required: false
-        default: 'release'
-      BOT_TYP:
-        description: 'The bot type (e.g. release/package)'
+        description: 'The bot type (e.g. release/package/specify)'
         type: string
         required: false
         default: 'release'
@@ -38,6 +33,16 @@ on:
         type: number
         required: false
         default: 0
+      BOT_WEBHOOK:
+        description: 'The bot webhook'
+        type: string
+        required: false
+        default: ''
+      PR_NUMBER:
+        description: 'The pull request number'
+        type: string
+        required: false
+        default: ""
 
 env:
   RELEASE_BOT_WEBHOOK: ${{ secrets.RELEASE_BOT_WEBHOOK }}
@@ -70,6 +75,10 @@ jobs:
               if [[ -n "${{ env.PACKAGE_BOT_WEBHOOK }}" ]]; then
                   cmd="${cmd} --bot-webhook '${{ env.PACKAGE_BOT_WEBHOOK }}' "
               fi
+          elif [[ "${{ inputs.BOT_TYPE }}" == "specify" ]]; then
+              if [[ -n "${{ inputs.BOT_WEBHOOK }}" ]]; then
+                  cmd="${cmd} --bot-webhook '${{ inputs.BOT_WEBHOOK }}' "
+              fi
           else
               if [[ -n "${{ env.RELEASE_BOT_WEBHOOK }}" ]]; then
                   cmd="${cmd} --bot-webhook '${{ env.RELEASE_BOT_WEBHOOK }}' "
@@ -82,6 +91,10 @@ jobs:
           
           if [[ -n "${{ inputs.VERSION }}" ]]; then
               cmd="${cmd} --version '${{ inputs.VERSION }}' "
+          fi
+          
+          if [[ -n "${{ inputs.PR_NUMBER }}" ]]; then
+              cmd="${cmd} --pr-number '${{ inputs.PR_NUMBER }}' "
           fi
           
           echo "$cmd"

@@ -14,6 +14,7 @@ Usage: $(basename "$0") <options>
                                 2) send message
                                 3) get release version
                                 4) get kbcli branch
+                                5) send cherry-pick message
     -gr, --github-repo        Github repo
     -gt, --github-token       Github token
     -v, --version             The release version
@@ -21,6 +22,7 @@ Usage: $(basename "$0") <options>
     -bw, --bot-webhook        The bot webhook
     -ru, --run-url            The workflow run url
     -cv, --current-version    The current release version
+    -pn, --pr-number          The pull request number
 EOF
 }
 
@@ -111,7 +113,7 @@ release_next_available_tag() {
         ;;
     esac
 
-    if [[ ! -z "$RELEASE_VERSION" ]];then
+    if [[ -n "$RELEASE_VERSION" ]];then
         echo "$RELEASE_VERSION"
     fi
 }
@@ -154,8 +156,16 @@ cover_space() {
 }
 
 release_message() {
-    curl -H "Content-Type: application/json" -X POST $BOT_WEBHOOK \
-        -d '{"msg_type":"post","content":{"post":{"zh_cn":{"title":"Release:","content":[[{"tag":"text","text":"yes master, release "},{"tag":"a","text":"['$VERSION']","href":"https://github.com/'$GITHUB_REPO'/releases/tag/'$VERSION'"},{"tag":"text","text":" is on its way..."}]]}}}}'
+    if [[ "$VERSION" == "apecloud/wesql-server:"* ]]; then
+        VERSION_TAG="$VERSION"
+        VERSION_TAG="${VERSION_TAG#*:}"
+        curl -H "Content-Type: application/json" -X POST $BOT_WEBHOOK \
+            -d '{"msg_type":"post","content":{"post":{"zh_cn":{"title":"Release:","content":[[{"tag":"text","text":"yes master, release "},{"tag":"a","text":"['$VERSION']","href":"https://hub.docker.com/r/apecloud/wesql-server/tags/?name='$VERSION_TAG'"},{"tag":"text","text":" is on its way..."}]]}}}}'
+    else
+        curl -H "Content-Type: application/json" -X POST $BOT_WEBHOOK \
+            -d '{"msg_type":"post","content":{"post":{"zh_cn":{"title":"Release:","content":[[{"tag":"text","text":"yes master, release "},{"tag":"a","text":"['$VERSION']","href":"https://github.com/'$GITHUB_REPO'/releases/tag/'$VERSION'"},{"tag":"text","text":" is on its way..."}]]}}}}'
+    fi
+
 }
 
 send_message() {
@@ -166,6 +176,13 @@ send_message() {
         curl -H "Content-Type: application/json" -X POST $BOT_WEBHOOK \
             -d '{"msg_type":"post","content":{"post":{"zh_cn":{"title":"Error:","content":[[{"tag":"a","text":"'$CONTENT'","href":"'$RUN_URL'"}]]}}}}'
     fi
+}
+
+send_cherry_pick_message() {
+    PR_NUMBER_TMP="#${PR_NUMBER}"
+    PR_URL="https://github.com/${GITHUB_REPO}/pull/${PR_NUMBER}"
+    curl -H "Content-Type: application/json" -X POST $BOT_WEBHOOK \
+        -d '{"msg_type":"post","content":{"post":{"zh_cn":{"title":"Cherry Pick '${PR_NUMBER_TMP}' Error:","content":[[{"tag":"a","text":"['${PR_NUMBER_TMP}']","href":"'$PR_URL'"},{"tag":"a","text":"'$CONTENT'","href":"'$RUN_URL'"}]]}}}}'
 }
 
 parse_command_line() {
@@ -224,6 +241,12 @@ parse_command_line() {
                     shift
                 fi
                 ;;
+            -pn|--pr-number)
+                if [[ -n "${2:-}" ]]; then
+                    PR_NUMBER="$2"
+                    shift
+                fi
+                ;;
             *)
                 break
                 ;;
@@ -245,6 +268,7 @@ main() {
     local RUN_URL=""
     local R_SPACE='\u00a0'
     local CUR_VERSION=""
+    local PR_NUMBER=""
 
     parse_command_line "$@"
 
@@ -261,6 +285,10 @@ main() {
         ;;
         4)
             get_kbcli_branch
+        ;;
+        5)
+            cover_space
+            send_cherry_pick_message
         ;;
     esac
 }
