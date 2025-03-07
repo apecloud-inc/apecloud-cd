@@ -1,4 +1,4 @@
-name: Get Cherry Pick Branch
+name: Pull Request Cherry Pick Auto
 
 on:
   workflow_call:
@@ -8,12 +8,6 @@ on:
         type: string
         required: false
         default: ''
-    outputs:
-      cherry-pick-branch:
-        description: "cherry pick branch"
-        value: ${{ jobs.cherry-pick-branch.outputs.matrix }}
-
-
 
 env:
   GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -77,3 +71,15 @@ jobs:
           echo "CHERRY_PICK_BRANCH:${CHERRY_PICK_BRANCH}"
           
           echo "matrix={\"include\":[$CHERRY_PICK_BRANCH]}" >> $GITHUB_OUTPUT
+
+  cherry-pick-comment:
+    needs: update-release-kbcli
+    need: [ cherry-pick-branch ]
+    uses: .github/workflows/comment-issue.yml
+    strategy:
+      matrix: ${{ fromJSON(needs.cherry-pick-branch.outputs.matrix) }}
+    with:
+      GITHUB_REPO: "${{ github.repository }}"
+      ISSUE_NUMBER: "${{ github.event.pull_request.number }}"
+      ISSUE_COMMENT_BODY: "/cherry-pick ${{ matrix.cherry-pick-branch }}"
+    secrets: inherit
