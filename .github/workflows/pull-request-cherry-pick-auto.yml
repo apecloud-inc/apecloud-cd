@@ -76,9 +76,9 @@ jobs:
     needs: [ get-branch ]
     name: ${{ matrix.cherry-pick-branch }}
     uses: ./.github/workflows/comment-issue.yml
-    if: ${{ needs.cherry-pick-branch.outputs.matrix != '' }}
+    if: ${{ needs.get-branch.outputs.matrix != '' }}
     strategy:
-      matrix: ${{ fromJSON(needs.cherry-pick-branch.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.get-branch.outputs.matrix) }}
     with:
       GITHUB_REPO: "${{ github.repository }}"
       ISSUE_NUMBER: "${{ github.event.pull_request.number }}"
