@@ -22,7 +22,7 @@ jobs:
           bash ${{ github.workspace }}/apecloud-cd/.github/utils/utils.sh \
               --type 15 \
               --github-repo "${{ github.repository }}" \
-              --issue-number "${{ github.repository }}" \
+              --issue-number "${{ github.event.pull_request.number }}" \
               --issue-comment "**Auto Cherry-pick Instructions**
           \`\`\`
           Usage:
