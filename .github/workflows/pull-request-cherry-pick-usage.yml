@@ -16,9 +16,10 @@ jobs:
        **Auto Cherry-pick Instructions**
        \`\`\`
        Usage:
-       - /nopick: Do not auto cherry-pick this PR.
+       - /nopick: Not auto cherry-pick this PR.
        - /pick: Cherry-pick this PR to (${{ vars.CHERRY_PICK_BRANCH }}).
        - /pick release-x.x [release-x.x]: Cherry-pick this PR to the specified branch (e.g. /pick release-0.29 [release-0.30]).
+       
        Example:
        - /nopick
        - /pick
