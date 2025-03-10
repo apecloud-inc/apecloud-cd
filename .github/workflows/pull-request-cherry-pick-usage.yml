@@ -1,0 +1,19 @@
+name: Pull Request Cherry Pick Usage
+
+on:
+  workflow_call:
+
+jobs:
+  cherry-pick-usage:
+    uses: ./.github/workflows/comment-issue.yml
+    with:
+      GITHUB_REPO: "${{ github.repository }}"
+      ISSUE_NUMBER: "${{ github.event.pull_request.number }}"
+      ISSUE_COMMENT_BODY: "**Auto Cherry-pick Instructions**
+      ```
+      Usage:
+      - /nopick: Do not auto cherry-pick this PR.
+      - /pick: Cherry-pick this PR to ${{ vars.CHERRY_PICK_BRANCH }}.
+      - /pick release-x.x: Cherry-pick this PR to the specified branch (e.g., /pick release-0.28).
+      ```"
+    secrets: inherit
