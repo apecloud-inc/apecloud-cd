@@ -18,7 +18,6 @@ jobs:
           ref: ${{ inputs.APECD_REF }}
 
       - name: comment issue
-        if: ${{ inputs.GITHUB_REPO != '' && inputs.ISSUE_NUMBER != '' && inputs.ISSUE_COMMENT_BODY != '' }}
         run: |
           bash ${{ github.workspace }}/apecloud-cd/.github/utils/utils.sh \
               --type 15 \
