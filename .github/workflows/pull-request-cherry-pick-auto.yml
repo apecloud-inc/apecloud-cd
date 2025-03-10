@@ -13,7 +13,7 @@ env:
   GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
 jobs:
-  branch:
+  pick-branch:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.get_check_pick_branch.outputs.matrix }}
